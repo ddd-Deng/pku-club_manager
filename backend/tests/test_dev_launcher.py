@@ -88,3 +88,76 @@ def test_failed_start_cleans_only_new_processes(monkeypatch):
         launcher.start(no_browser=True)
     terminate.assert_called_once_with(spawned)
     engine.dispose.assert_called_once()
+
+
+def test_http_ready_rejects_html_fallback_for_missing_javascript(monkeypatch):
+    response = Mock(status=200)
+    response.headers.get_content_type.return_value = "text/html"
+    context = Mock()
+    context.__enter__ = Mock(return_value=response)
+    context.__exit__ = Mock(return_value=False)
+    monkeypatch.setattr(launcher.urllib.request, "urlopen", lambda *a, **kw: context)
+    monkeypatch.setattr(launcher.time, "monotonic", Mock(side_effect=[0, 0, 2]))
+    monkeypatch.setattr(launcher.time, "sleep", Mock())
+    with pytest.raises(launcher.LaunchError, match="服务未就绪"):
+        launcher.http_ready(
+            launcher.URL + "src/App.vue", timeout=1, content_types=("text/javascript",)
+        )
+
+
+def test_broken_vue_module_is_not_treated_as_ready_homepage(monkeypatch):
+    response = Mock(status=200)
+    response.headers.get_content_type.return_value = "text/javascript"
+    context = Mock()
+    context.__enter__ = Mock(return_value=response)
+    context.__exit__ = Mock(return_value=False)
+
+    def urlopen(url, **kwargs):
+        if url.endswith("App.vue"):
+            raise launcher.urllib.error.HTTPError(url, 500, "Vue plugin missing", {}, None)
+        return context
+
+    monkeypatch.setattr(launcher.urllib.request, "urlopen", urlopen)
+    monkeypatch.setattr(launcher.time, "monotonic", Mock(side_effect=[0, 0, 0, 0, 0, 0, 2]))
+    monkeypatch.setattr(launcher.time, "sleep", Mock())
+    with pytest.raises(launcher.LaunchError, match="App.vue"):
+        launcher.frontend_ready(timeout=1)
+
+
+def test_unhealthy_frontend_is_restarted_without_touching_backend_or_ssh(monkeypatch):
+    monkeypatch.setattr(launcher.Path, "is_file", lambda path: True)
+    backend, ssh, stale = {"pid": 1}, {"pid": 2}, {"pid": 3}
+    managed, owned = [backend, ssh], []
+
+    def reuse(kind, port, entries):
+        entries.append(stale)
+        return True
+
+    monkeypatch.setattr(launcher, "reuse", reuse)
+    monkeypatch.setattr(
+        launcher, "frontend_ready", Mock(side_effect=[launcher.LaunchError("module broken"), None])
+    )
+    terminate, spawn = Mock(), Mock()
+    monkeypatch.setattr(launcher, "terminate", terminate)
+    monkeypatch.setattr(launcher, "spawn", spawn)
+    replacement = {"pid": 4}
+    monkeypatch.setattr(launcher, "wait_port", lambda *args: replacement)
+    launcher.ensure_frontend(
+        "node.exe", launcher.FRONTEND / "node_modules/vite/bin/vite.js", owned, managed
+    )
+    terminate.assert_called_once_with(stale)
+    assert managed == [backend, ssh, replacement]
+    command = spawn.call_args.args[1]
+    assert command[command.index("--config") + 1] == str(launcher.FRONTEND / "vite.config.ts")
+
+
+def test_healthy_frontend_is_reused_without_restart(monkeypatch):
+    monkeypatch.setattr(launcher.Path, "is_file", lambda path: True)
+    monkeypatch.setattr(launcher, "reuse", lambda *args: True)
+    monkeypatch.setattr(launcher, "frontend_ready", lambda **kwargs: None)
+    terminate, spawn = Mock(), Mock()
+    monkeypatch.setattr(launcher, "terminate", terminate)
+    monkeypatch.setattr(launcher, "spawn", spawn)
+    launcher.ensure_frontend("node.exe", "vite.js", [], [])
+    terminate.assert_not_called()
+    spawn.assert_not_called()

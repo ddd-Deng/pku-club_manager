@@ -209,18 +209,67 @@ def check_database():
         ) from exc
 
 
-def http_ready(url, expected=None, timeout=30):
+def http_ready(url, expected=None, timeout=30, content_types=None):
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         try:
             with urllib.request.urlopen(url, timeout=2) as response:
-                if response.status == 200:
+                if response.status == 200 and (
+                    content_types is None or response.headers.get_content_type() in content_types
+                ):
                     if expected is None or json.load(response)["data"]["source"] == expected:
                         return
         except (OSError, ValueError, KeyError, urllib.error.URLError):
             pass
         time.sleep(0.5)
     raise LaunchError(f"服务未就绪：{url}；请查看 .dev.local 中的日志。")
+
+
+def frontend_ready(timeout=30):
+    http_ready(URL, timeout=timeout)
+    # HTML can load even when Vite's aliases or Vue plugin have stopped working.
+    for module in ("src/main.ts", "src/App.vue", "src/router/index.ts"):
+        http_ready(
+            URL + module,
+            timeout=timeout,
+            content_types=("text/javascript", "application/javascript"),
+        )
+
+
+def ensure_frontend(node, vite, owned, managed):
+    config = FRONTEND / "vite.config.ts"
+    if not config.is_file():
+        raise LaunchError("缺少 frontend/vite.config.ts，请检查项目文件是否完整。")
+    if reuse("frontend", 5173, managed):
+        try:
+            frontend_ready(timeout=3)
+            return
+        except LaunchError:
+            print("当前前端模块加载异常，正在重启本项目的前端服务……", flush=True)
+            terminate(managed.pop())
+    child = spawn(
+        "frontend",
+        [
+            node,
+            str(vite),
+            str(FRONTEND),
+            "--config",
+            str(config),
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "5173",
+            "--strictPort",
+        ],
+        FRONTEND,
+        5173,
+        owned,
+    )
+    item = wait_port("frontend", 5173, child, 30)
+    if not item:
+        raise LaunchError("前端启动失败，请查看 .dev.local/frontend.log。")
+    managed.append(item)
+    frontend_ready()
 
 
 def start(no_browser):
@@ -268,19 +317,7 @@ def start(no_browser):
                 raise LaunchError("后端启动失败，请查看 .dev.local/backend.log。")
             managed.append(item)
         http_ready("http://127.0.0.1:8080/api/test/hello", expected="server")
-        if not reuse("frontend", 5173, managed):
-            child = spawn(
-                "frontend",
-                [node, str(vite), "--host", "127.0.0.1", "--port", "5173", "--strictPort"],
-                FRONTEND,
-                5173,
-                owned,
-            )
-            item = wait_port("frontend", 5173, child, 30)
-            if not item:
-                raise LaunchError("前端启动失败，请查看 .dev.local/frontend.log。")
-            managed.append(item)
-        http_ready(URL)
+        ensure_frontend(node, vite, owned, managed)
         STATE.write_text(json.dumps(managed, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"启动完成：{URL}\n双击 scripts/stop.cmd 可以停止本机项目服务。", flush=True)
         if not no_browser:
