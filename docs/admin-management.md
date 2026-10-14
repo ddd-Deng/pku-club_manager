@@ -84,4 +84,4 @@ npm --prefix frontend run build
 
 ## Git 交付
 
-从最新 `main` 创建 `codex/admin-management`，按接口与迁移、前端页面与 mock 测试、后端测试与文档分阶段提交。本次保留该功能分支，不自动合并或推送。使用说明分别更新了根目录 README、前后端 README、接口契约与项目规则。
+从最新 `main` 创建 `codex/admin-management`，按接口与迁移、前端页面与 mock 测试、后端测试与文档分阶段提交。完成验收后，按用户要求快进合并至本地 `main`，保留原有三个功能提交；未推送 GitHub。后续本机开发默认直接在 `main` 上进行，除非用户另有分支要求。使用说明分别更新了根目录 README、前后端 README、接口契约与项目规则。

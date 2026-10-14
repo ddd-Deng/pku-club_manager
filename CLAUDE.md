@@ -60,6 +60,7 @@ MySQL 自动化测试仅允许显式指定的独立 `campus_club_test`，不得�
 
 ## 6. 提交与协作
 
+- 本机后续开发默认直接在 `main` 上修改和提交；用户未特别要求时，不新建功能分支。需要隔离开发或切换分支时，按用户的明确要求执行；合并与推送也以用户授权为准。
 - commit 前缀：`feat` / `fix` / `docs` / `refactor` / `style`，中文描述，例：`feat: 社团广场增加分类筛选与分页`。
 - 一次提交只做一件事；接口契约变更（`docs/api.md`）必须与前端代码同一次提交。
 - 不提交 `frontend/node_modules/`、`frontend/dist/`、`frontend/.env.*.local`（见 `.gitignore`）。
