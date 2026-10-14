@@ -12,8 +12,8 @@ export function toPublicUser(user: MockUser): UserInfo {
     email: user.email,
     role: user.role,
     avatar: user.avatar,
-    clubId: user.clubId,
-    clubName: user.clubName
+    clubId: user.clubId ?? null,
+    clubName: user.clubName ?? null
   }
 }
 

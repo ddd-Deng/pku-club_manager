@@ -104,3 +104,8 @@ export function publishRecruitment(
     data: payload
   })
 }
+
+/** 公开招新帖列表 */
+export function getRecruitments(clubId: string): Promise<RecruitmentPost[]> {
+  return request<RecruitmentPost[]>({ method: 'GET', url: `/api/clubs/${clubId}/recruitments` })
+}

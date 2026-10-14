@@ -175,3 +175,11 @@ mockRoute('POST', '/api/clubs/:id/recruitments', (ctx) => {
   mockDb.recruitments.push(post)
   return post
 })
+
+mockRoute('GET', '/api/clubs/:id/recruitments', (ctx) => {
+  const clubId = ctx.pathParams.id
+  if (!mockDb.clubs.some((item) => item.id === clubId)) {
+    throw new MockError(1404, '社团不存在')
+  }
+  return mockDb.recruitments.filter((item) => item.clubId === clubId)
+})

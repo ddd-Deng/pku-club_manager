@@ -17,6 +17,8 @@ export interface Activity {
   status: ActivityStatus
   capacity: number
   registeredCount: number
+  /** 活动详情返回，当前登录用户是否已报名 */
+  registered?: boolean
   /** 活动类型：讲座 / 比赛 / 演出 / 志愿活动等 */
   type: string
 }
@@ -40,6 +42,9 @@ export interface ActivityPayload {
   endTime: string
   capacity: number
   type: string
+  /** 管理员可指定社团；社长只能使用本社团 */
+  clubId?: string
+  cover?: string
 }
 
 /** 活动报名记录 */

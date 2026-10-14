@@ -11,8 +11,8 @@ export interface UserInfo {
   /** 头像，emoji 或图片 url */
   avatar: string
   /** 社长所管理的社团 id，student / admin 为空 */
-  clubId?: string
-  clubName?: string
+  clubId?: string | null
+  clubName?: string | null
 }
 
 export interface LoginPayload {

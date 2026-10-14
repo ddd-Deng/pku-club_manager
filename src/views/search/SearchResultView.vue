@@ -14,9 +14,11 @@ import StateBlock from '@/components/StateBlock.vue'
 import type { SearchHistoryItem, SearchHit, SearchHitType } from '@/types/search'
 import type { PageResult } from '@/types/common'
 import { DEFAULT_PAGE_SIZE } from '@/utils/constants'
+import { useUserStore } from '@/stores/user'
 
 const route = useRoute()
 const router = useRouter()
+const userStore = useUserStore()
 
 const keyword = ref('')
 const type = ref<SearchHitType | ''>('')
@@ -55,7 +57,9 @@ async function doSearch(): Promise<void> {
       pageSize: pageSize.value
     })
     // 搜索成功后刷新历史列表
-    void loadHistory()
+    if (userStore.isLoggedIn) {
+      void loadHistory()
+    }
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : '搜索失败'
   } finally {
@@ -104,6 +108,10 @@ function gotoDetail(hit: SearchHit): void {
 /* ---------------- 搜索历史 ---------------- */
 
 async function loadHistory(): Promise<void> {
+  if (!userStore.isLoggedIn) {
+    history.value = []
+    return
+  }
   try {
     history.value = await getSearchHistory()
   } catch {
@@ -160,14 +168,8 @@ watch(
   { immediate: true }
 )
 
-onMounted(() => {
-  const kw = typeof route.query.keyword === 'string' ? route.query.keyword : ''
-  keyword.value = kw
-  if (kw) {
-    void doSearch()
-  }
-  void loadHistory()
-})
+onMounted(loadHistory)
+watch(() => userStore.isLoggedIn, loadHistory)
 </script>
 
 <template>
