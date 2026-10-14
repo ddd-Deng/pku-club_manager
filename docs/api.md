@@ -1,7 +1,7 @@
 # 前后端接口契约（API Contract）
 
 > 校园社团管理系统（基础 V1.0）· 前端 ↔ 后端 / AI 服务接口约定
-> 本文档是**唯一权威契约**：前端 `src/types`、`src/api`、`src/mock` 与后端实现都必须与此一致。
+> 本文档是**唯一权威契约**：前端 `frontend/src/types`、`frontend/src/api`、`frontend/src/mock` 与后端实现都必须与此一致。
 > 覆盖 Xmind 页面结构图中的全部功能点。变更接口请同步修改本文档与前端类型定义。
 > 当前 `backend/` 已实现认证 2.1–2.3、2.5，用户 3.1–3.6，社团 4.1–4.12，活动 5.1–5.10，通知 8.1–8.4 和连通性 10.1，共 37 个接口。密码找回、场地、知识库、AI、搜索后端仍未实现；前端 mock 覆盖范围与真实后端实现范围不同。
 
@@ -1113,20 +1113,20 @@
 
 | 模块            | 前端文件                  | mock handler                    | 覆盖接口 |
 | --------------- | ------------------------- | ------------------------------- | -------- |
-| 认证            | `src/api/auth.ts`         | `src/mock/handlers/auth.ts`     | 2.1–2.5  |
-| 用户 / 个人中心 | `src/api/user.ts`         | `src/mock/handlers/user.ts`     | 3.1–3.6  |
-| 社团            | `src/api/club.ts`         | `src/mock/handlers/club.ts`     | 4.1–4.11 |
-| 活动            | `src/api/activity.ts`     | `src/mock/handlers/activity.ts` | 5.1–5.10 |
-| 场地物资        | `src/api/venue.ts`        | `src/mock/handlers/misc.ts`     | 6.1–6.4  |
-| 知识库          | `src/api/kb.ts`           | `src/mock/handlers/misc.ts`     | 7.1–7.3  |
-| AI 问答         | `src/api/ai.ts`           | `src/mock/handlers/misc.ts`     | 7.4–7.5  |
-| 消息通知        | `src/api/notification.ts` | `src/mock/handlers/misc.ts`     | 8.1–8.4  |
-| 搜索            | `src/api/search.ts`       | `src/mock/handlers/misc.ts`     | 9.1–9.4  |
-| 连通性测试      | `src/api/test.ts`         | `src/mock/handlers/misc.ts`     | 10.1     |
+| 认证            | `frontend/src/api/auth.ts`         | `frontend/src/mock/handlers/auth.ts`     | 2.1–2.5  |
+| 用户 / 个人中心 | `frontend/src/api/user.ts`         | `frontend/src/mock/handlers/user.ts`     | 3.1–3.6  |
+| 社团            | `frontend/src/api/club.ts`         | `frontend/src/mock/handlers/club.ts`     | 4.1–4.11 |
+| 活动            | `frontend/src/api/activity.ts`     | `frontend/src/mock/handlers/activity.ts` | 5.1–5.10 |
+| 场地物资        | `frontend/src/api/venue.ts`        | `frontend/src/mock/handlers/misc.ts`     | 6.1–6.4  |
+| 知识库          | `frontend/src/api/kb.ts`           | `frontend/src/mock/handlers/misc.ts`     | 7.1–7.3  |
+| AI 问答         | `frontend/src/api/ai.ts`           | `frontend/src/mock/handlers/misc.ts`     | 7.4–7.5  |
+| 消息通知        | `frontend/src/api/notification.ts` | `frontend/src/mock/handlers/misc.ts`     | 8.1–8.4  |
+| 搜索            | `frontend/src/api/search.ts`       | `frontend/src/mock/handlers/misc.ts`     | 9.1–9.4  |
+| 连通性测试      | `frontend/src/api/test.ts`         | `frontend/src/mock/handlers/misc.ts`     | 10.1     |
 
 ### 11.2 mock 与真实后端覆盖情况
 
-- **mock**：按 `src/mock/handlers/` 注册的路由运行，供前端独立演示；演示数据以本地内存为主，不能作为数据库和真实权限的验收依据。
+- **mock**：按 `frontend/src/mock/handlers/` 注册的路由运行，供前端独立演示；演示数据以本地内存为主，不能作为数据库和真实权限的验收依据。
 - **真实后端**：`backend/` 实现 2.1–2.3、2.5，3.1–3.6，4.1–4.12，5.1–5.10，8.1–8.4，10.1。2.4、6、7、9 章尚未实现，真实模式请求这些接口会返回 404 统一错误结构。
 - **页面**：首页、登录注册、社团广场、搜索及连通性测试已有界面。社团详情、活动详情、个人中心、管理后台业务、通知和 AI 页仍为占位；搜索页真实后端暂不可用。
 - 上传类接口（7.1）真实模式为 `multipart/form-data`，mock 模式接受 `{ title, size }` 字段模拟。
@@ -1136,4 +1136,4 @@
 1. 后端按本契约实现 `10.1`，前端把 `VITE_USE_MOCK` 改为 `false`，打开 `/test/hello` 应显示 `source: "server"`。
 2. 依次联调：登录（2.1）→ 社团列表（4.1）→ 社团详情（4.4）→ 活动（5.x）→ 其余模块。
 3. 后端需保证：信封结构、分页结构、字段名 camelCase、角色枚举值、错误码语义与本文档一致；前端不做字段兼容适配。
-4. 若后端字段确需调整，先改本文档与 `src/types`，再改 mock 与页面，避免三处不一致。
+4. 若后端字段确需调整，先改本文档与 `frontend/src/types`，再改 mock 与页面，避免三处不一致。

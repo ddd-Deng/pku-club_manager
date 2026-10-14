@@ -35,7 +35,7 @@ ssh -p 1021 group7@8.130.213.80 'python3 ~/campus-club-shared-mysql.py start'
 scp -P 1021 group7@8.130.213.80:campus-club-mysql/etc/app.env backend/.env.shared
 ```
 
-在 `backend/.env` 中将 `DATABASE_URL` 替换为 `.env.shared` 中的值，保留自己生成的 `TOKEN_SECRET` 和本机 CORS 设置。不要在终端输出文件内容。前端根目录 `.env.development.local` 使用：
+在 `backend/.env` 中将 `DATABASE_URL` 替换为 `.env.shared` 中的值，保留自己生成的 `TOKEN_SECRET` 和本机 CORS 设置。不要在终端输出文件内容。前端本地配置 `frontend/.env.development.local` 使用：
 
 ```text
 VITE_USE_MOCK=false
@@ -50,9 +50,12 @@ cd backend
 ```
 
 ```powershell
+cd frontend
 npm ci
-npm run dev
+npm run dev -- --host 127.0.0.1 --port 5173 --strictPort
 ```
+
+以上两个启动代码块分别在不同终端从项目根目录开始执行。
 
 `app.env` 只有应用数据库连接信息；请勿分发 `root.cnf`、`migration.env` 或备份密钥。各组员的登录 Token 与自己的后端密钥对应，切换后端或密钥后需要重新登录。
 

@@ -11,7 +11,7 @@
     "type-check": "vue-tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write \"src/**/*.{ts,vue,css}\" \"docs/**/*.md\" \"*.{js,json,md}\""
+    "format": "prettier --config .prettierrc.json --ignore-path .prettierignore --write \"src/**/*.{ts,vue,css}\" \"../docs/**/*.md\" \"*.{js,json,md}\""
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",

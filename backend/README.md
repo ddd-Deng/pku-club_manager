@@ -52,14 +52,14 @@ python -m venv .venv
 
 ## 与前端联调
 
-前端默认继续使用 mock。根目录新建 `.env.development.local`：
+前端默认继续使用 mock。在 `frontend/` 目录新建 `.env.development.local`：
 
 ```text
 VITE_USE_MOCK=false
 VITE_API_BASE_URL=http://127.0.0.1:8080
 ```
 
-重启 `npm run dev`，访问 `/test/hello`，其 `source` 应为 `server`；再检查登录注册、首页和社团广场。真实后端尚未提供搜索、场地、AI 和邮件找回接口，对应页面或请求会显示失败状态。前端占位页面尚不能通过用户界面完成申请、报名等操作，可先在 `http://127.0.0.1:8080/docs` 演示对应接口。
+在 `frontend/` 中重启 `npm run dev`，访问 `/test/hello`，其 `source` 应为 `server`；再检查登录注册、首页和社团广场。真实后端尚未提供搜索、场地、AI 和邮件找回接口，对应页面或请求会显示失败状态。前端占位页面尚不能通过用户界面完成申请、报名等操作，可先在 `http://127.0.0.1:8080/docs` 演示对应接口。
 
 ## 检查与测试
 
