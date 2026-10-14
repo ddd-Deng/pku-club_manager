@@ -282,7 +282,7 @@ def start(no_browser):
             managed.append(item)
         http_ready(URL)
         STATE.write_text(json.dumps(managed, ensure_ascii=False, indent=2), encoding="utf-8")
-        print(f"启动完成：{URL}\n双击 stop.cmd 可以停止本机项目服务。", flush=True)
+        print(f"启动完成：{URL}\n双击 scripts/stop.cmd 可以停止本机项目服务。", flush=True)
         if not no_browser:
             webbrowser.open(URL)
     except BaseException:
