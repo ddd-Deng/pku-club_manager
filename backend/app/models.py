@@ -2,6 +2,7 @@ from datetime import date, datetime
 
 from sqlalchemy import (
     JSON,
+    Boolean,
     CheckConstraint,
     DateTime,
     ForeignKey,
@@ -37,12 +38,22 @@ class Club(Record, Base):
 
 class User(Record, Base):
     __tablename__ = "users"
-    __table_args__ = (CheckConstraint("role IN ('student','clubAdmin','admin')"),)
+    __table_args__ = (
+        CheckConstraint("role IN ('student','clubAdmin','admin')"),
+        CheckConstraint(
+            "(role = 'clubAdmin' AND club_id IS NOT NULL) OR "
+            "(role IN ('student','admin') AND club_id IS NULL)",
+            name="ck_users_role_club",
+        ),
+        UniqueConstraint("club_id", name="uq_users_managed_club"),
+        Index("ix_users_club_id", "club_id"),
+    )
     name: Mapped[str] = mapped_column(String(100))
     student_no: Mapped[str] = mapped_column(String(32), unique=True)
     email: Mapped[str] = mapped_column(String(254), unique=True)
     password_hash: Mapped[str] = mapped_column(String(255))
     role: Mapped[str] = mapped_column(String(20), default="student")
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="1")
     avatar: Mapped[str] = mapped_column(String(2048), default="🧑‍🎓")
     club_id: Mapped[str | None] = mapped_column(ForeignKey("clubs.id"))
 

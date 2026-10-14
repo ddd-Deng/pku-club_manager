@@ -27,7 +27,10 @@ mockRoute('PUT', '/api/user/password', (ctx) => {
   if (!newPassword) {
     throw new MockError(1003, '新密码不能为空')
   }
+  if (newPassword.length < 6 || newPassword.length > 128)
+    throw new MockError(1003, '新密码长度为6～128位')
   user.password = newPassword
+  user.token = ''
   return null
 })
 

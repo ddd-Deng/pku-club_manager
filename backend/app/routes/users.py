@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from sqlalchemy import select
 
 from app.common import fail, iso, ok, utcnow
-from app.models import Activity, Application, Club, Registration
+from app.models import Activity, Application, Club, Registration, User
 from app.schemas import PasswordPayload, ProfilePayload
 from app.security import CurrentUser, Db, passwords, revoke_user_sessions, verify_password
 from app.serializers import application_data, user_data
@@ -25,6 +25,14 @@ def edit_profile(payload: ProfilePayload, db: Db, user: CurrentUser):
 
 @router.put("/password")
 def change_password(payload: PasswordPayload, db: Db, user: CurrentUser):
+    user = db.scalar(
+        select(User)
+        .where(User.id == user.id)
+        .with_for_update()
+        .execution_options(populate_existing=True)
+    )
+    if not user.is_active:
+        fail(401, "账号已停用，请联系管理员", 401)
     if not verify_password(user.password_hash, payload.old_password):
         fail(1005, "原密码不正确")
     user.password_hash = passwords.hash(payload.new_password)

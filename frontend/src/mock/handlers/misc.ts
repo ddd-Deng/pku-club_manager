@@ -33,11 +33,12 @@ mockRoute('GET', '/api/test/hello', (): HelloResult => {
 /* ---------------- 消息与通知 ---------------- */
 
 mockRoute('GET', '/api/notifications', (ctx) => {
-  requireAuth(ctx)
+  const user = requireAuth(ctx)
   const type = readString(ctx.params, 'type')
   const readParam = ctx.params.read
   const list = mockDb.notifications
     .filter((item) => {
+      if (item.userId !== user.id) return false
       if (type && item.type !== type) return false
       if (typeof readParam === 'string') {
         return item.read === (readParam === 'true')
@@ -49,13 +50,15 @@ mockRoute('GET', '/api/notifications', (ctx) => {
 })
 
 mockRoute('GET', '/api/notifications/unread-count', (ctx) => {
-  requireAuth(ctx)
-  return mockDb.notifications.filter((item) => !item.read).length
+  const user = requireAuth(ctx)
+  return mockDb.notifications.filter((item) => item.userId === user.id && !item.read).length
 })
 
 mockRoute('PUT', '/api/notifications/:id/read', (ctx) => {
-  requireAuth(ctx)
-  const notification = mockDb.notifications.find((item) => item.id === ctx.pathParams.id)
+  const user = requireAuth(ctx)
+  const notification = mockDb.notifications.find(
+    (item) => item.id === ctx.pathParams.id && item.userId === user.id
+  )
   if (!notification) {
     throw new MockError(1404, '通知不存在')
   }
@@ -64,10 +67,10 @@ mockRoute('PUT', '/api/notifications/:id/read', (ctx) => {
 })
 
 mockRoute('PUT', '/api/notifications/read-all', (ctx) => {
-  requireAuth(ctx)
+  const user = requireAuth(ctx)
   let updated = 0
   mockDb.notifications.forEach((item) => {
-    if (!item.read) {
+    if (item.userId === user.id && !item.read) {
       item.read = true
       updated += 1
     }

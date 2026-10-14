@@ -12,6 +12,8 @@ import { SEARCH_HISTORY_STORAGE_KEY } from '@/utils/constants'
 export interface MockUser extends UserInfo {
   token: string
   password: string
+  isActive?: boolean
+  createdAt?: string
 }
 
 /** 生成相对当前时间偏移 n 天的 ISO 时间 */
@@ -311,11 +313,18 @@ export const mockDb = {
   ] as Activity[],
 
   members: [
-    { id: 'm-1', clubId: 'c-1', name: '陈光影', role: 'owner', joinedAt: iso(-400) },
+    {
+      id: 'm-1',
+      clubId: 'c-1',
+      userId: 'u-club',
+      name: '陈光影',
+      role: 'owner',
+      joinedAt: iso(-400)
+    },
     { id: 'm-2', clubId: 'c-1', name: '赵一帆', role: 'officer', joinedAt: iso(-300) },
     { id: 'm-3', clubId: 'c-1', name: '孙悦', role: 'member', joinedAt: iso(-120) },
     { id: 'm-4', clubId: 'c-1', name: '周子航', role: 'member', joinedAt: iso(-60) }
-  ] as (ClubMember & { clubId: string })[],
+  ] as (ClubMember & { clubId: string; userId?: string })[],
 
   applications: [
     {
@@ -338,6 +347,7 @@ export const mockDb = {
     },
     {
       id: 'ap-3',
+      userId: 'u-student',
       clubId: 'c-3',
       clubName: '辩论社',
       applicantName: '林晓',
@@ -345,7 +355,7 @@ export const mockDb = {
       status: 'pending',
       createdAt: iso(-2)
     }
-  ] as ClubApplication[],
+  ] as (ClubApplication & { userId?: string })[],
 
   registrations: [
     {
@@ -361,6 +371,7 @@ export const mockDb = {
   notifications: [
     {
       id: 'nt-1',
+      userId: 'u-club',
       type: 'application',
       title: '入社申请待审核',
       content: '王小明 提交了摄影社入社申请，请及时处理。',
@@ -370,6 +381,7 @@ export const mockDb = {
     },
     {
       id: 'nt-2',
+      userId: 'u-student',
       type: 'activity',
       title: '活动上新提醒',
       content: '你关注的摄影社发布了新活动「秋日校园摄影大赛」。',
@@ -379,6 +391,7 @@ export const mockDb = {
     },
     {
       id: 'nt-3',
+      userId: 'u-club',
       type: 'venue',
       title: '场地预约审批反馈',
       content: '你提交的「大学生活动中心 305」预约已通过审批。',
@@ -388,6 +401,7 @@ export const mockDb = {
     },
     {
       id: 'nt-4',
+      userId: 'u-student',
       type: 'application',
       title: '入社申请审核通知',
       content: '你提交的辩论社入社申请正在审核中。',
@@ -395,7 +409,7 @@ export const mockDb = {
       createdAt: iso(-2),
       link: '/profile'
     }
-  ] as NotificationItem[],
+  ] as (NotificationItem & { userId: string })[],
 
   venues: [
     {

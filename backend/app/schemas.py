@@ -72,6 +72,36 @@ class PasswordPayload(Payload):
     new_password: Password
 
 
+class AdminProfilePayload(EmailPayload):
+    name: Name | None = None
+    email: Annotated[str, Field(max_length=254)] | None = None
+
+    @model_validator(mode="after")
+    def require_change(self):
+        if not self.model_fields_set:
+            raise ValueError("至少提供姓名或邮箱")
+        return self
+
+
+class AccountStatusPayload(Payload):
+    is_active: Annotated[bool, Field(strict=True)]
+
+
+class PresidentPayload(Payload):
+    user_id: Annotated[str, Field(min_length=1, max_length=36)]
+    expected_president_id: Annotated[str, Field(min_length=1, max_length=36)] | None
+
+    @model_validator(mode="before")
+    @classmethod
+    def reject_null(cls, data):
+        if isinstance(data, dict) and any(
+            value is None and key not in ("expectedPresidentId", "expected_president_id")
+            for key, value in data.items()
+        ):
+            raise ValueError("仅 expectedPresidentId 可为 null")
+        return data
+
+
 class ClubPayload(Payload):
     name: Name | None = None
     description: Annotated[str, Field(min_length=1, max_length=500)] | None = None

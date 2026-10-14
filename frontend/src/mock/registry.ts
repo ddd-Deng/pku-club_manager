@@ -83,10 +83,12 @@ export function findRoute(
 export function requireAuth(ctx: MockContext): MockUser {
   const authorization = ctx.headers.Authorization ?? ctx.headers.authorization ?? ''
   const token = authorization.replace(/^Bearer\s+/i, '')
+  if (!token) throw new MockError(401, '请先登录')
   const user = mockDb.users.find((item) => item.token === token)
   if (!user) {
     throw new MockError(401, '登录已失效，请重新登录')
   }
+  if (user.isActive === false) throw new MockError(401, '账号已停用，请联系管理员')
   return user
 }
 

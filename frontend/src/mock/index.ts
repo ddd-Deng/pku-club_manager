@@ -9,6 +9,7 @@ import './handlers/user'
 import './handlers/club'
 import './handlers/activity'
 import './handlers/misc'
+import './handlers/admin'
 
 /** 是否启用本地 mock：由环境变量 VITE_USE_MOCK 控制 */
 export function isMockEnabled(): boolean {

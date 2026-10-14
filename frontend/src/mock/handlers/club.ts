@@ -77,11 +77,17 @@ mockRoute('PUT', '/api/clubs/:id', (ctx) => {
 })
 
 mockRoute('POST', '/api/clubs/:id/applications', (ctx) => {
-  const user = requireRole(ctx, ['student'])
+  const user = requireRole(ctx, ['student', 'clubAdmin'])
   const clubId = ctx.pathParams.id
   const club = mockDb.clubs.find((item) => item.id === clubId)
   if (!club) {
     throw new MockError(1404, '社团不存在')
+  }
+  if (
+    user.clubId === clubId ||
+    mockDb.members.some((member) => member.clubId === clubId && member.userId === user.id)
+  ) {
+    throw new MockError(1409, '你已经是该社团成员')
   }
   const duplicated = mockDb.applications.some(
     (item) =>
@@ -90,7 +96,8 @@ mockRoute('POST', '/api/clubs/:id/applications', (ctx) => {
   if (duplicated) {
     throw new MockError(1409, '你已提交过该社团的入社申请，请等待审核')
   }
-  const application: ClubApplication = {
+  const application: ClubApplication & { userId: string } = {
+    userId: user.id,
     id: `ap-${Date.now()}`,
     clubId,
     clubName: club.name,
@@ -117,7 +124,7 @@ mockRoute('PUT', '/api/clubs/:id/applications/:appId', (ctx) => {
   const clubId = ctx.pathParams.id
   requireClubOwner(ctx, clubId)
   const application = mockDb.applications.find((item) => item.id === ctx.pathParams.appId)
-  if (!application) {
+  if (!application || application.clubId !== clubId) {
     throw new MockError(1404, '申请不存在')
   }
   if (application.status !== 'pending') {
@@ -126,6 +133,24 @@ mockRoute('PUT', '/api/clubs/:id/applications/:appId', (ctx) => {
   const action = readString(ctx.data, 'action') as ReviewApplicationPayload['action']
   if (action !== 'approve' && action !== 'reject') {
     throw new MockError(1003, 'action 只能为 approve 或 reject')
+  }
+  if (action === 'approve' && application.userId) {
+    if (
+      mockDb.members.some(
+        (member) => member.clubId === clubId && member.userId === application.userId
+      )
+    )
+      throw new MockError(1409, '申请人已经是成员')
+    mockDb.members.push({
+      id: `m-${crypto.randomUUID()}`,
+      clubId,
+      userId: application.userId,
+      name: application.applicantName,
+      role: 'member',
+      joinedAt: new Date().toISOString()
+    })
+    const club = mockDb.clubs.find((item) => item.id === clubId)
+    if (club) club.memberCount += 1
   }
   application.status = action === 'approve' ? 'approved' : 'rejected'
   application.reviewedAt = new Date().toISOString()
@@ -141,10 +166,14 @@ mockRoute('GET', '/api/clubs/:id/members', (ctx) => {
 mockRoute('PUT', '/api/clubs/:id/members/:memberId', (ctx) => {
   const clubId = ctx.pathParams.id
   requireClubOwner(ctx, clubId)
-  const index = mockDb.members.findIndex((item) => item.id === ctx.pathParams.memberId)
+  const index = mockDb.members.findIndex(
+    (item) => item.id === ctx.pathParams.memberId && item.clubId === clubId
+  )
   if (index === -1) {
     throw new MockError(1404, '成员不存在')
   }
+  if (mockDb.members[index].role === 'owner')
+    throw new MockError(403, '此接口不能变更或移除社团所有者')
   const action = readString(ctx.data, 'action')
   if (action === 'remove') {
     const [removed] = mockDb.members.splice(index, 1)

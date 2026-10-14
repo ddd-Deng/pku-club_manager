@@ -70,6 +70,8 @@ def optional_user(
     user = db.get(User, session.user_id)
     if user is None:
         fail(401, "登录已失效，请重新登录", 401)
+    if not user.is_active:
+        fail(401, "账号已停用，请联系管理员", 401)
     return user
 
 
@@ -85,15 +87,24 @@ def student_user(user: Annotated[User, Depends(current_user)]) -> User:
     return user
 
 
+def administrator(user: Annotated[User, Depends(current_user)]) -> User:
+    if user.role != "admin":
+        fail(403, "仅系统管理员可执行此操作", 403)
+    return user
+
+
 def managed_club(db: Session, user: User, club_id: str, lock: bool = False) -> Club:
-    if user.role not in ("clubAdmin", "admin") or (
-        user.role == "clubAdmin" and user.club_id != club_id
-    ):
-        fail(403, "只能管理自己所属的社团", 403)
     query = select(Club).where(Club.id == club_id)
     if lock:
         query = query.with_for_update()
     club = db.scalar(query)
+    db.refresh(user)  # Recheck ownership after waiting for a concurrent president handover.
+    if not user.is_active:
+        fail(401, "账号已停用，请联系管理员", 401)
+    if user.role not in ("clubAdmin", "admin") or (
+        user.role == "clubAdmin" and user.club_id != club_id
+    ):
+        fail(403, "只能管理自己所属的社团", 403)
     if club is None:
         fail(1404, "社团不存在")
     return club
@@ -107,3 +118,4 @@ Db = Annotated[Session, Depends(get_db, scope="function")]
 CurrentUser = Annotated[User, Depends(current_user)]
 StudentUser = Annotated[User, Depends(student_user)]
 OptionalUser = Annotated[User | None, Depends(optional_user)]
+AdminUser = Annotated[User, Depends(administrator)]

@@ -13,7 +13,7 @@ from app.common import BusinessError, iso, ok, utcnow
 from app.config import Settings
 from app.db import session_factory
 from app.jobs import finish_loop
-from app.routes import activities, auth, clubs, notifications, users
+from app.routes import activities, admin, auth, clubs, notifications, users
 
 logger = logging.getLogger(__name__)
 
@@ -91,6 +91,7 @@ def create_app(settings: Settings | None = None, sessions=None, run_jobs: bool =
 
     for router in (
         auth.router,
+        admin.router,
         users.router,
         clubs.router,
         activities.router,

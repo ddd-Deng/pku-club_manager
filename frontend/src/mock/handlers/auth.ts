@@ -1,7 +1,7 @@
 import type { LoginResult, UserInfo } from '@/types/user'
 
 import { mockDb, type MockUser } from '../db'
-import { MockError, mockRoute, readString } from '../registry'
+import { MockError, mockRoute, readString, requireAuth } from '../registry'
 
 /** 去掉凭据字段，返回可对外暴露的用户信息 */
 export function toPublicUser(user: MockUser): UserInfo {
@@ -27,6 +27,8 @@ mockRoute('POST', '/api/auth/login', (ctx) => {
   if (!user || user.password !== password) {
     throw new MockError(1001, '账号或密码错误')
   }
+  if (user.isActive === false) throw new MockError(1006, '账号已停用，请联系管理员')
+  user.token = `mock-${crypto.randomUUID()}`
   const result: LoginResult = { token: user.token, user: toPublicUser(user) }
   return result
 })
@@ -49,7 +51,9 @@ mockRoute('POST', '/api/auth/register', (ctx) => {
     email,
     role: 'student',
     avatar: '🧑‍🎓',
-    token: `mock-token-${studentNo}`,
+    token: `mock-${crypto.randomUUID()}`,
+    isActive: true,
+    createdAt: new Date().toISOString(),
     password
   }
   mockDb.users.push(user)
@@ -57,8 +61,8 @@ mockRoute('POST', '/api/auth/register', (ctx) => {
   return result
 })
 
-mockRoute('POST', '/api/auth/logout', () => {
-  // mock 不做服务端 session 管理，登出由前端清理 token
+mockRoute('POST', '/api/auth/logout', (ctx) => {
+  requireAuth(ctx).token = ''
   return null
 })
 

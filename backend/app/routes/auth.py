@@ -22,13 +22,16 @@ router = APIRouter(prefix="/api/auth", tags=["认证"])
 @router.post("/login")
 def login(payload: LoginPayload, request: Request, db: Db):
     user = db.scalar(
-        select(User).where(
-            or_(User.student_no == payload.account, User.email == payload.account.lower())
-        )
+        select(User)
+        .where(or_(User.student_no == payload.account, User.email == payload.account.lower()))
+        .with_for_update()
+        .execution_options(populate_existing=True)
     )
     valid = verify_password(user.password_hash if user else DUMMY_HASH, payload.password)
     if user is None or not valid:
         fail(1001, "账号或密码错误")
+    if not user.is_active:
+        fail(1006, "账号已停用，请联系管理员", 403)
     if passwords.check_needs_rehash(user.password_hash):
         user.password_hash = passwords.hash(payload.password)
     token = issue_session(db, user, request.app.state.settings.token_secret, payload.remember)
