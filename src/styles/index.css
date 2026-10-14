@@ -1,0 +1,81 @@
+@import './variables.css';
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'PingFang SC', 'Helvetica Neue', Helvetica, 'Microsoft YaHei', Arial, sans-serif;
+  font-size: 14px;
+  color: var(--app-color-text);
+  background-color: var(--app-color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 页面主容器：限宽居中 */
+.app-container {
+  width: 100%;
+  max-width: var(--app-container-width);
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+/* 通用卡片外观（与 Element Plus el-card 视觉一致） */
+.app-card {
+  background: var(--app-color-surface);
+  border-radius: var(--app-radius-md);
+  box-shadow: var(--app-shadow-card);
+}
+
+/* 区块标题（卡片内标题 + 蓝色下划线，参考 UI 稿） */
+.app-section-title {
+  position: relative;
+  margin: 0 0 16px;
+  padding-bottom: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--app-color-text);
+}
+
+.app-section-title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 28px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--app-color-primary);
+}
+
+/* 文本省略 */
+.app-ellipsis-2 {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* Element Plus 细节覆盖 */
+.el-card {
+  border: none;
+  border-radius: var(--app-radius-md);
+  box-shadow: var(--app-shadow-card);
+}
+
+.el-button--primary {
+  --el-button-border-radius: var(--app-radius-sm);
+}

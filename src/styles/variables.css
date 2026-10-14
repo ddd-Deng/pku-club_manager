@@ -1,0 +1,50 @@
+/**
+ * 全局主题变量（与 UI 稿保持一致：蓝白、卡片、圆角）
+ * 所有业务样式只允许引用这里的变量，禁止散落硬编码色值。
+ */
+:root {
+  /* 品牌色 */
+  --app-color-primary: #2e7cf0;
+  --app-color-primary-light: #6aa6f8;
+  --app-color-primary-lighter: #a8cbfb;
+  --app-color-primary-dark: #1d5fd0;
+  --app-color-primary-bg: #ecf3fe;
+
+  /* 功能色 */
+  --app-color-success: #22c07b;
+  --app-color-warning: #f5a623;
+  --app-color-danger: #f04d4f;
+
+  /* 中性色 */
+  --app-color-bg: #f5f7fa;
+  --app-color-surface: #ffffff;
+  --app-color-text: #1f2d3d;
+  --app-color-text-secondary: #6b7a90;
+  --app-color-text-placeholder: #a3aebc;
+  --app-color-border: #e4e9f0;
+
+  /* 圆角 / 阴影 / 尺寸 */
+  --app-radius-sm: 6px;
+  --app-radius-md: 10px;
+  --app-radius-lg: 16px;
+  --app-shadow-card: 0 2px 12px rgba(31, 45, 61, 0.06);
+  --app-shadow-card-hover: 0 6px 20px rgba(46, 124, 240, 0.16);
+  --app-navbar-height: 60px;
+  --app-container-width: 1200px;
+
+  /* 覆盖 Element Plus 主题：把 EP 主色系映射到品牌变量 */
+  --el-color-primary: var(--app-color-primary);
+  --el-color-primary-light-3: var(--app-color-primary-light);
+  --el-color-primary-light-5: var(--app-color-primary-lighter);
+  --el-color-primary-light-7: #d4e5fd;
+  --el-color-primary-light-8: #e3eefe;
+  --el-color-primary-light-9: var(--app-color-primary-bg);
+  --el-color-primary-dark-2: var(--app-color-primary-dark);
+  --el-color-success: var(--app-color-success);
+  --el-color-warning: var(--app-color-warning);
+  --el-color-danger: var(--app-color-danger);
+  --el-border-radius-base: var(--app-radius-sm);
+  --el-text-color-primary: var(--app-color-text);
+  --el-text-color-regular: var(--app-color-text-secondary);
+  --el-bg-color-page: var(--app-color-bg);
+}

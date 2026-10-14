@@ -1,0 +1,38 @@
+{
+  "name": "campus-club-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "校园社团管理系统（基础V1.0）前端 - 大学软件工程课程项目",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "type-check": "vue-tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"src/**/*.{ts,vue,css}\" \"docs/**/*.md\" \"*.{js,json,md}\""
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.3.1",
+    "axios": "^1.7.7",
+    "element-plus": "^2.8.8",
+    "pinia": "^2.2.6",
+    "vue": "^3.5.13",
+    "vue-router": "^4.4.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.15.0",
+    "@types/node": "^22.9.0",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "eslint": "^9.15.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-vue": "^9.31.0",
+    "globals": "^15.12.0",
+    "prettier": "^3.4.1",
+    "typescript": "~5.6.3",
+    "typescript-eslint": "^8.15.0",
+    "vite": "^6.0.1",
+    "vue-tsc": "^2.1.10"
+  }
+}
