@@ -142,6 +142,8 @@ def edit_club(club_id: str, payload: ClubPayload, db: Db, user: CurrentUser):
 def apply(club_id: str, payload: ApplyPayload, db: Db, user: StudentUser):
     # Serialize all applications/membership changes within a club, including first submissions.
     club = find_club(db, club_id, lock=True)
+    if user.club_id == club_id:
+        fail(1409, "不能申请加入自己管理的社团")
     if db.scalar(select(Member.id).where(Member.club_id == club_id, Member.user_id == user.id)):
         fail(1409, "你已经是该社团成员")
     if db.scalar(

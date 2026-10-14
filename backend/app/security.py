@@ -65,7 +65,10 @@ def optional_user(request: Request, db: Annotated[Session, Depends(get_db)]) -> 
     )
     if session is None:
         fail(401, "登录已失效，请重新登录", 401)
-    return db.get(User, session.user_id)
+    user = db.get(User, session.user_id)
+    if user is None:
+        fail(401, "登录已失效，请重新登录", 401)
+    return user
 
 
 def current_user(user: Annotated[User | None, Depends(optional_user)]) -> User:
