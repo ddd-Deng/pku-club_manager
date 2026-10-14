@@ -53,7 +53,9 @@ def read_token(request: Request) -> str | None:
     return token
 
 
-def optional_user(request: Request, db: Annotated[Session, Depends(get_db)]) -> User | None:
+def optional_user(
+    request: Request, db: Annotated[Session, Depends(get_db, scope="function")]
+) -> User | None:
     token = read_token(request)
     if token is None:
         return None
@@ -101,7 +103,7 @@ def revoke_user_sessions(db: Session, user_id: str) -> None:
     db.execute(delete(LoginSession).where(LoginSession.user_id == user_id))
 
 
-Db = Annotated[Session, Depends(get_db)]
+Db = Annotated[Session, Depends(get_db, scope="function")]
 CurrentUser = Annotated[User, Depends(current_user)]
 StudentUser = Annotated[User, Depends(student_user)]
 OptionalUser = Annotated[User | None, Depends(optional_user)]
