@@ -17,6 +17,7 @@ yarn-error.log*
 pnpm-debug.log*
 .agentix/
 .sandbox-tmp/
+.dev.local/
 backend/.venv/
 backend/.shared-db.local/
 backend/.env
