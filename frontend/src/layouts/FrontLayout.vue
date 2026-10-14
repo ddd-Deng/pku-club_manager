@@ -103,6 +103,7 @@ watch(() => userStore.isLoggedIn, refreshUnread)
                 <el-dropdown-item v-if="userStore.role !== 'student'" command="admin">
                   管理后台
                 </el-dropdown-item>
+                <el-dropdown-item command="account/password">修改密码</el-dropdown-item>
                 <el-dropdown-item command="logout" divided>退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </template>

@@ -31,6 +31,7 @@ npm run dev      # 启动开发服务器，默认 http://localhost:5173
 | `npm run preview`    | 预览构建产物                              |
 | `npm run type-check` | 仅做 TypeScript / 模板类型检查（vue-tsc） |
 | `npm run lint`       | ESLint 检查（提交前必须无报错）           |
+| `npm run test:admin-mock` | 管理员 mock 权限、交接与会话测试（无需数据库） |
 | `npm run lint:fix`   | ESLint 自动修复                           |
 | `npm run format`     | Prettier 格式化                           |
 
@@ -105,12 +106,19 @@ npm run dev      # 启动开发服务器，默认 http://localhost:5173
 | `/clubs/:id`      | 社团详情                     | 顶部导航 | 公开                 | ⏳ 占位                                            |
 | `/activities/:id` | 活动详情                     | 顶部导航 | 公开                 | ⏳ 占位                                            |
 | `/admin`          | 社团管理后台（6 个标签分区） | 侧边栏   | clubAdmin / admin    | ⏳ 占位                                            |
+| `/admin/accounts` | 学生账号管理 | 侧边栏 | admin | ✅ 查询筛选、资料编辑、启用与禁用 |
+| `/admin/presidents` | 任命／更换社长 | 侧边栏 | admin | ✅ 当前社长、候选人选择、交接确认及冲突刷新 |
+| `/account/password` | 本人修改密码 | 顶部导航 | 登录 | ✅ 原密码校验、确认新密码、成功后重新登录 |
 | `/profile`        | 个人中心                     | 顶部导航 | 登录                 | ⏳ 占位                                            |
 | `/notifications`  | 消息与通知                   | 顶部导航 | 登录                 | ⏳ 占位                                            |
 | `/ai`             | AI 知识库问答                | 顶部导航 | 登录                 | ⏳ 占位                                            |
 | `/search`         | 搜索结果                     | 顶部导航 | 公开                 | ✅ mock 模式可搜索、筛选、分页与管理搜索历史；真实搜索后端待实现 |
 
 守卫规则：未登录访问受保护页 → 跳 `/login?redirect=原路径`；角色不符 → 提示并回首页；请求层收到 401 → 清 token 并跳登录。
+
+管理员登录后从“管理后台”进入两个新增页面；原有六个社团管理分区仍为占位。社长后台不显示管理员入口。前台用户菜单及后台顶部均提供“修改密码”。交接后新旧社长需重新登录，禁用在任社长前须先交接；管理员不能重置他人密码。
+
+mock 中账号编辑、启禁用和交接会更新当前页面会话内的演示数据，重新登录产生新 Token，空 Token 与撤销的旧 Token 无法认证。刷新页面会重载 mock 数据；真实模式持久化到 MySQL。测试与交付说明见 [管理员功能交付说明](../docs/admin-management.md)。
 
 ## 验证 Demo
 

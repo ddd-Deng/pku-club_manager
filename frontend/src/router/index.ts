@@ -54,6 +54,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '活动详情' }
       },
       {
+        path: 'account/password',
+        name: 'account-password',
+        component: () => import('@/views/account/PasswordChangeView.vue'),
+        meta: { title: '修改密码', requiresAuth: true }
+      },
+      {
         path: 'profile',
         name: 'profile',
         component: () => import('@/views/profile/ProfileView.vue'),
@@ -90,6 +96,18 @@ const routes: RouteRecordRaw[] = [
     component: AdminLayout,
     meta: { requiresAuth: true, roles: ['clubAdmin', 'admin'] },
     children: [
+      {
+        path: 'accounts',
+        name: 'admin-accounts',
+        component: () => import('@/views/admin/AccountsView.vue'),
+        meta: { title: '学生账号管理', requiresAuth: true, roles: ['admin'] }
+      },
+      {
+        path: 'presidents',
+        name: 'admin-presidents',
+        component: () => import('@/views/admin/PresidentsView.vue'),
+        meta: { title: '社长任命与更换', requiresAuth: true, roles: ['admin'] }
+      },
       {
         path: '',
         name: 'admin',

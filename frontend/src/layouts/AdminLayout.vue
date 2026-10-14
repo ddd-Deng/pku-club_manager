@@ -34,6 +34,12 @@ async function handleLogout(): Promise<void> {
         <span>社团管理后台</span>
       </div>
       <el-menu :default-active="route.path" router class="admin-aside__menu">
+        <el-menu-item v-if="userStore.role === 'admin'" index="/admin/accounts">
+          <el-icon><Setting /></el-icon><span>学生账号管理</span>
+        </el-menu-item>
+        <el-menu-item v-if="userStore.role === 'admin'" index="/admin/presidents">
+          <el-icon><OfficeBuilding /></el-icon><span>任命／更换社长</span>
+        </el-menu-item>
         <el-menu-item index="/admin">
           <el-icon><Setting /></el-icon>
           <span>管理后台</span>
@@ -63,6 +69,7 @@ async function handleLogout(): Promise<void> {
           </el-tag>
         </div>
         <div class="admin-header__actions">
+          <el-button text @click="router.push('/account/password')">修改密码</el-button>
           <el-button text @click="backToFront">返回前台</el-button>
           <el-button text type="danger" @click="handleLogout">退出登录</el-button>
         </div>
