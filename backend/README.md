@@ -4,6 +4,8 @@ Python 3.11+、FastAPI、MySQL 8。实现 `docs/api.md` 标记的 37 个核心�
 
 第 7 组多人联调采用共享开发数据库时，见 [共享数据库说明](./SHARED_DATABASE.md)。它与每位组员本机的独立测试库分开。
 
+macOS 组员连接现有共享数据库的完整安装与启动步骤见 [项目 README 的 macOS 章节](../README.md#macos-启动共享开发数据库)。Mac 虚拟环境的 Python 路径为 `.venv/bin/python`；下方 PowerShell 命令中的 `.venv\Scripts\` 路径仅用于 Windows。共享库日常启动无需执行下方本地建库、迁移或初始化命令。
+
 本机开发优先使用 `compose.yaml` 启动专用 MySQL。容器仅监听本机 `127.0.0.1:3307`，数据保存在 Docker 命名卷 `campus-club-mysql-data` 中；停止或重启容器不会清除业务数据。Git 只保存编排、迁移和初始化脚本，不保存数据卷与密码。
 
 ## 本地准备（PowerShell）
