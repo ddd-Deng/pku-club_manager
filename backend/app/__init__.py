@@ -1,0 +1,1 @@
+"""Campus club core backend."""

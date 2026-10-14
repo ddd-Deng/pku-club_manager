@@ -6,7 +6,7 @@
 ## 0. 硬约束
 
 1. 技术栈固定：Vue 3 `<script setup>` + Vite + TypeScript + Vue Router + Pinia + Element Plus + Axios + ESLint + Prettier。不得擅自更换、不得引入 UI 框架替代品或状态管理替代品。
-2. 只允许改动前端代码；涉及后端逻辑（数据库、鉴权实现、RAG 模型）一律只写契约（`docs/api.md`）与 mock，不实现服务端代码。
+2. 用户已授权在 `backend/` 使用 Python + FastAPI + MySQL 实现核心后端、数据库迁移与测试；前端继续遵守现有技术栈。AI、场地预约、搜索后端、邮件找回不在本阶段范围。接口变更同步 `docs/api.md`、类型和 mock。
 3. 页面结构、页面名称、组件划分、跳转关系以 `docs/ui/xmind-structure.jpeg` 为准；UI 稿文字存在乱码，只参考布局 / 配色 / 风格（蓝白、卡片、圆角）。
 4. 新增依赖前必须说明理由并征得确认，优先使用已有依赖。
 5. 交付前必须通过：`npm run lint`（零报错）、`npm run type-check`（零报错）、`npm run dev` 可启动、涉及页面手工点检。
