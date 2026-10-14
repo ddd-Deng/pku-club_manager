@@ -17,6 +17,7 @@ pnpm-debug.log*
 .agentix/
 .sandbox-tmp/
 backend/.venv/
+backend/.shared-db.local/
 backend/.env
 backend/.env.*
 !backend/.env.example

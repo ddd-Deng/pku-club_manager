@@ -2,6 +2,8 @@
 
 Python 3.11+、FastAPI、MySQL 8。实现 `docs/api.md` 标记的 37 个核心接口；`/docs` 提供可交互接口说明。`backend/` 与前端在同一 Git 仓库中。
 
+第 7 组多人联调采用共享开发数据库时，见 [共享数据库说明](./SHARED_DATABASE.md)。它与每位组员本机的独立测试库分开。
+
 本机开发优先使用 `compose.yaml` 启动专用 MySQL。容器仅监听本机 `127.0.0.1:3307`，数据保存在 Docker 命名卷 `campus-club-mysql-data` 中；停止或重启容器不会清除业务数据。Git 只保存编排、迁移和初始化脚本，不保存数据卷与密码。
 
 ## 本地准备（PowerShell）

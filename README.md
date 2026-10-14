@@ -4,6 +4,7 @@
 
 后端安装、MySQL 迁移、演示数据及联调步骤见 [backend/README.md](./backend/README.md)。
 本机开发可用 Docker Desktop 启动项目专用 MySQL；业务数据保存在本机命名卷中。当前电脑若有 `.env.development.local`，其设置会覆盖下文所述的默认 mock 模式。
+第 7 组使用学校服务器共享开发数据的连接与维护步骤见 [共享数据库说明](./backend/SHARED_DATABASE.md)。
 
 ## 技术栈
 
@@ -119,7 +120,7 @@ npm install && npm run dev
 2. 打开 `http://localhost:5173/clubs` → 搜索"摄影"、切换分类"文化艺术"，可见筛选与分页生效。
 3. 打开 `http://localhost:5173/test/hello` → 页面显示 `hello world`，并展示 `GET /api/test/hello` 返回的 JSON。
 4. 未登录访问 `http://localhost:5173/admin` → 跳转登录页；用 `2024001` 登录后再访问 → 提示无权限并回首页；用 `2021002` 或 `admin` 登录 → 进入侧边栏后台。
-5. 把 `VITE_USE_MOCK` 改为 `false` 并重启，刷新首页 → 出现失败态与"重新加载"按钮（证明真实模式走 axios、页面代码未改动）。
+5. 启动真实后端，把 `VITE_USE_MOCK` 改为 `false` 并重启前端 → 连通性页面显示 `source: "server"`，首页与社团广场读取数据库记录；后端停机时显示失败态。
 6. `npm run lint` 与 `npm run type-check` 均无报错。
 
 ## 开发约定
