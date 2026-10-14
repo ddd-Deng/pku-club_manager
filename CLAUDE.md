@@ -6,12 +6,16 @@
 ## 0. 硬约束
 
 1. 技术栈固定：Vue 3 `<script setup>` + Vite + TypeScript + Vue Router + Pinia + Element Plus + Axios + ESLint + Prettier。不得擅自更换、不得引入 UI 框架替代品或状态管理替代品。
-2. 用户已授权在 `backend/` 使用 Python + FastAPI + MySQL 实现核心后端、数据库迁移与测试；前端继续遵守现有技术栈。AI、场地预约、搜索后端、邮件找回不在本阶段范围。接口变更同步 `docs/api.md`、类型和 mock。
+2. 用户已授权在 `backend/` 使用 Python + FastAPI + MySQL 实现核心后端、数据库迁移与测试；本阶段包括管理员学生账号管理、社长任命／更换及本人改密页面。前端继续遵守现有技术栈。AI、场地预约、搜索后端、邮件找回、管理员重置密码、账号创建删除及学籍白名单维护不在本阶段范围。接口变更同步 `docs/api.md`、类型和 mock。
 3. 页面结构、页面名称、组件划分、跳转关系以 `docs/ui/xmind-structure.jpeg` 为准；UI 稿文字存在乱码，只参考布局 / 配色 / 风格（蓝白、卡片、圆角）。
 4. 新增依赖前必须说明理由并征得确认，优先使用已有依赖。
 5. 交付前必须通过：`npm run lint`（零报错）、`npm run type-check`（零报错）、`npm run dev` 可启动、涉及页面手工点检。
 
 前端工程（含依赖、构建配置与本地环境文件）统一放在 `frontend/`；所有 npm 命令在该目录执行，Git 操作在仓库根目录执行。共同的 `.editorconfig`、接口契约和项目规则保留在根目录。
+
+管理员账号与社长页面为 `/admin/accounts`、`/admin/presidents`，仅 `admin` 可访问；`/account/password` 为所有登录用户的本人改密页。一人最多管理一个社团，禁用在任社长前必须交接。交接与禁用撤销相关登录会话。接口权限必须由后端检查，不能仅依赖前端菜单或路由。
+
+MySQL 自动化测试仅允许显式指定的独立 `campus_club_test`，不得清理共享开发库。共享库结构升级由维护者先备份，再使用迁移账号执行；数据不一致必须报告，不能自动清理。验收记录应区分接口、页面、mock 和真实数据库验证。
 
 ## 1. 目录与命名
 
