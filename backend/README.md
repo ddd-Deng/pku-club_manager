@@ -2,9 +2,27 @@
 
 Python 3.11+、FastAPI、MySQL 8。实现 `docs/api.md` 标记的 37 个核心接口；`/docs` 提供可交互接口说明。`backend/` 与前端在同一 Git 仓库中。
 
+本机开发优先使用 `compose.yaml` 启动专用 MySQL。容器仅监听本机 `127.0.0.1:3307`，数据保存在 Docker 命名卷 `campus-club-mysql-data` 中；停止或重启容器不会清除业务数据。Git 只保存编排、迁移和初始化脚本，不保存数据卷与密码。
+
 ## 本地准备（PowerShell）
 
-先在已有 MySQL 实例中创建两个**独立**的空数据库。数据库创建只需执行一次。测试库会在测试前清理本项目的业务表，绝不能与业务库共用。
+在 `backend/` 中安装依赖并自动生成本机凭据，然后启动 Docker MySQL、创建业务库和独立测试库：
+
+```powershell
+cd backend
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -e '.[dev]'
+.\.venv\Scripts\python.exe -m app.local_db prepare
+docker compose --env-file .env.mysql -f compose.yaml up -d
+.\.venv\Scripts\python.exe -m app.local_db provision
+.\.venv\Scripts\alembic.exe -c alembic.ini upgrade head
+.\.venv\Scripts\python.exe -m app.seed
+.\.venv\Scripts\uvicorn.exe app.main:app --host 127.0.0.1 --port 8080
+```
+
+`prepare` 只在第一次运行，生成 `.env.mysql`、`.env`、`.env.test`；文件已存在时会拒绝覆盖。`provision` 可重复执行，只管理两个项目数据库和专用用户。之后重启数据库只需运行 `docker compose --env-file .env.mysql -f compose.yaml up -d`。数据库容器启动后，再启动后端服务即可。停止数据库可运行 `docker compose --env-file .env.mysql -f compose.yaml stop`，数据仍保留。
+
+如果不用 Docker，先在已有 MySQL 实例中创建两个**独立**的空数据库。数据库创建只需执行一次。测试库会在测试前清理本项目的业务表，绝不能与业务库共用。
 
 ```sql
 CREATE DATABASE campus_club CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -17,7 +35,7 @@ CREATE DATABASE campus_club_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_c
 python -c "import secrets; print(secrets.token_urlsafe(48))"
 ```
 
-进入后端目录执行：
+已有 MySQL 的迁移与启动命令：
 
 ```powershell
 cd backend

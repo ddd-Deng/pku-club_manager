@@ -3,6 +3,7 @@
 大学软件工程课程 8 人小组项目。现有 Vue 前端与 `backend/` 内的 FastAPI 核心后端；前端默认使用本地 mock，也可切换真实接口。后端目前覆盖认证、个人中心、社团、活动、通知及连通性测试；其他业务后端仍待实现。
 
 后端安装、MySQL 迁移、演示数据及联调步骤见 [backend/README.md](./backend/README.md)。
+本机开发可用 Docker Desktop 启动项目专用 MySQL；业务数据保存在本机命名卷中。当前电脑若有 `.env.development.local`，其设置会覆盖下文所述的默认 mock 模式。
 
 ## 技术栈
 
