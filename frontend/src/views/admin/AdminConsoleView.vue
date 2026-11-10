@@ -12,13 +12,13 @@ import MemberManager from './components/MemberManager.vue'
  * 管理后台容器（OOD：单一职责）
  * 只负责：标签切换 + 确定"当前管理的社团" + 分发到四个业务子组件。
  * 各分区的数据加载与业务逻辑都在子组件内完成（见 docs/phase2-design.md §3 类图）。
+ *
+ * 范围说明（组内决定）：「管理社团」仅面向社长本人所属社团；
+ * 系统管理员（admin）的全局管理本阶段不做，故路由守卫只放行 clubAdmin，
+ * 这里直接用当前社长的 clubId，不再为 admin 指定演示社团。
  */
 const userStore = useUserStore()
-const isAdmin = computed(() => userStore.role === 'admin')
-/** 社长固定管理所属社团；管理员演示默认操作摄影社 */
-const managedClubId = computed(() =>
-  isAdmin.value ? 'c-1' : (userStore.userInfo?.clubId ?? 'c-1')
-)
+const managedClubId = computed(() => userStore.userInfo?.clubId ?? '')
 
 const activeTab = ref('profile')
 const clubName = ref('')

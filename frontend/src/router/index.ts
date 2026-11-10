@@ -94,13 +94,13 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/admin',
     component: AdminLayout,
-    meta: { requiresAuth: true, roles: ['clubAdmin', 'admin'] },
+    meta: { requiresAuth: true, roles: ['clubAdmin'] },
     children: [
       {
         path: '',
         name: 'admin',
         component: () => import('@/views/admin/AdminConsoleView.vue'),
-        meta: { title: '社团管理后台', requiresAuth: true, roles: ['clubAdmin', 'admin'] }
+        meta: { title: '社团管理后台', requiresAuth: true, roles: ['clubAdmin'] }
       }
     ]
   },

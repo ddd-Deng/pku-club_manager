@@ -15,7 +15,7 @@
 | 编号 | 核心功能 | 使用者 | 范围 |
 | ---- | -------- | ------ | ---- |
 | F1 | 查阅社团信息 | 学生（个人） | 社团详情、活动详情、活动报名、入社申请 |
-| F2 | 管理社团 | 社团管理者（clubAdmin / admin） | 社团资料编辑、活动管理、招新帖与入社申请审核、成员权限管理 |
+| F2 | 管理社团 | 社长（clubAdmin） | 社团资料编辑、活动管理、招新帖与入社申请审核、成员权限管理 |
 
 明确**不做**的（避免范围蔓延，写进 backlog 的 Notes）：场地物资预约、知识库上传、AI 问答、消息通知页——属其他阶段或其他组接口，本阶段保留占位。
 
@@ -60,7 +60,6 @@ UC7 ..> UC2 : <<extend>>
 @startuml
 left to right direction
 actor "社长 clubAdmin" as Admin
-actor "系统管理员 admin" as Sys
 
 rectangle "管理社团" {
   usecase "编辑社团资料" as UC1
@@ -76,14 +75,8 @@ Admin --> UC3
 Admin --> UC4
 Admin --> UC5
 Admin --> UC6
-Sys --> UC1
-Sys --> UC2
-Sys --> UC3
-Sys --> UC4
-Sys --> UC5
-Sys --> UC6
 note right of Admin : 仅能管理本社团\n(requireClubOwner)
-note right of Sys : 可管理全部社团
+note bottom of Admin : 系统管理员 admin 的全局管理\n本阶段不做（组内范围决定）
 @enduml
 ```
 
