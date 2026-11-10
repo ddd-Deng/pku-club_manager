@@ -48,6 +48,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '社团详情' }
       },
       {
+        path: 'clubs/:id/apply',
+        name: 'club-apply',
+        component: () => import('@/views/club/ClubApplyView.vue'),
+        meta: { title: '申请入社', requiresAuth: true }
+      },
+      {
         path: 'activities/:id',
         name: 'activity-detail',
         component: () => import('@/views/activity/ActivityDetailView.vue'),
