@@ -82,6 +82,14 @@ function resetForm(): void {
   form.clubId = undefined
 }
 
+/** 把 UTC ISO 串（带 Z）转成 el-date-picker 需要的本地 'YYYY-MM-DDTHH:mm'，避免编辑时丢失时区导致时间漂移 */
+function toLocalInput(iso: string): string {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return iso.slice(0, 16)
+  const pad = (n: number) => `${n}`.padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
 function openCreate(): void {
   resetForm()
   dialogVisible.value = true
@@ -92,8 +100,8 @@ function openEdit(activity: Activity): void {
   form.title = activity.title
   form.description = activity.description
   form.location = activity.location
-  form.startTime = activity.startTime.slice(0, 16)
-  form.endTime = activity.endTime.slice(0, 16)
+  form.startTime = toLocalInput(activity.startTime)
+  form.endTime = toLocalInput(activity.endTime)
   form.capacity = activity.capacity
   form.type = activity.type
   form.cover = activity.cover
