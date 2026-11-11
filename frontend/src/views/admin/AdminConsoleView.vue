@@ -1,33 +1,54 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
-import PagePlaceholder from '@/components/PagePlaceholder.vue'
+import { useUserStore } from '@/stores/user'
+
+import ActivityManager from './components/ActivityManager.vue'
+import ApplicationReviewPanel from './components/ApplicationReviewPanel.vue'
+import ClubProfileForm from './components/ClubProfileForm.vue'
+import MemberManager from './components/MemberManager.vue'
+
+/**
+ * 管理后台容器（OOD：单一职责）
+ * 只负责：标签切换 + 确定"当前管理的社团" + 分发到四个业务子组件。
+ * 各分区的数据加载与业务逻辑都在子组件内完成（见 docs/phase2-design.md §3 类图）。
+ *
+ * 范围说明（组内决定）：「管理社团」仅面向社长本人所属社团；
+ * 系统管理员（admin）的全局管理本阶段不做，故路由守卫只放行 clubAdmin，
+ * 这里直接用当前社长的 clubId，不再为 admin 指定演示社团。
+ */
+const userStore = useUserStore()
+const managedClubId = computed(() => userStore.userInfo?.clubId ?? '')
 
 const activeTab = ref('profile')
-
-const tabs = [
-  {
-    name: 'profile',
-    label: '社团资料编辑',
-    description: '维护社团名称、简介、标签与头像等基础资料。'
-  },
-  { name: 'activity', label: '活动管理', description: '活动新建 / 草稿 / 发布 / 下架全流程管理。' },
-  {
-    name: 'recruitment',
-    label: '招新审核',
-    description: '发布招新帖、处理入社申请（通过 / 拒绝）。'
-  },
-  { name: 'member', label: '成员权限管理', description: '查看成员列表，设置骨干 / 移除成员。' },
-  { name: 'venue', label: '场地物资预约', description: '提交场地与物资预约单，查看审批状态。' },
-  { name: 'kb', label: '社团知识库上传', description: '上传社团文档，供 AI 知识库问答检索。' }
-]
+const clubName = ref('')
 </script>
 
 <template>
-  <el-card class="admin-console">
+  <el-card class="admin-console" shadow="never">
+    <div class="admin-console__head">
+      <h2 class="admin-console__title">社团管理后台</h2>
+      <el-tag v-if="clubName" type="primary" effect="plain">当前管理：{{ clubName }}</el-tag>
+    </div>
+
     <el-tabs v-model="activeTab">
-      <el-tab-pane v-for="tab in tabs" :key="tab.name" :label="tab.label" :name="tab.name">
-        <PagePlaceholder :title="tab.label" :description="tab.description" />
+      <el-tab-pane label="社团资料编辑" name="profile">
+        <ClubProfileForm :club-id="managedClubId" @club-loaded="clubName = $event" />
+      </el-tab-pane>
+      <el-tab-pane label="活动管理" name="activity">
+        <ActivityManager :club-id="managedClubId" />
+      </el-tab-pane>
+      <el-tab-pane label="招新审核" name="recruitment">
+        <ApplicationReviewPanel :club-id="managedClubId" />
+      </el-tab-pane>
+      <el-tab-pane label="成员权限管理" name="member">
+        <MemberManager :club-id="managedClubId" />
+      </el-tab-pane>
+      <el-tab-pane label="场地物资预约" name="venue" disabled>
+        <p class="admin-console__placeholder">本阶段范围外，保留占位（见 backlog ID 14）。</p>
+      </el-tab-pane>
+      <el-tab-pane label="社团知识库上传" name="kb" disabled>
+        <p class="admin-console__placeholder">本阶段范围外，保留占位（见 backlog ID 15）。</p>
       </el-tab-pane>
     </el-tabs>
   </el-card>
@@ -36,5 +57,24 @@ const tabs = [
 <style scoped>
 .admin-console {
   min-height: calc(100vh - 160px);
+}
+
+.admin-console__head {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.admin-console__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.admin-console__placeholder {
+  margin: 24px 0;
+  text-align: center;
+  color: var(--app-color-text-placeholder);
 }
 </style>

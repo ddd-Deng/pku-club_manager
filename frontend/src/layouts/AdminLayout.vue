@@ -40,7 +40,7 @@ async function handleLogout(): Promise<void> {
         <el-menu-item v-if="userStore.role === 'admin'" index="/admin/presidents">
           <el-icon><OfficeBuilding /></el-icon><span>任命／更换社长</span>
         </el-menu-item>
-        <el-menu-item index="/admin">
+        <el-menu-item v-if="userStore.role === 'clubAdmin'" index="/admin">
           <el-icon><Setting /></el-icon>
           <span>管理后台</span>
         </el-menu-item>
