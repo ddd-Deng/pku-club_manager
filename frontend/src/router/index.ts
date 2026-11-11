@@ -48,6 +48,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '社团详情' }
       },
       {
+        path: 'clubs/:id/apply',
+        name: 'club-apply',
+        component: () => import('@/views/club/ClubApplyView.vue'),
+        meta: { title: '申请入社', requiresAuth: true }
+      },
+      {
         path: 'activities/:id',
         name: 'activity-detail',
         component: () => import('@/views/activity/ActivityDetailView.vue'),
@@ -88,13 +94,13 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/admin',
     component: AdminLayout,
-    meta: { requiresAuth: true, roles: ['clubAdmin', 'admin'] },
+    meta: { requiresAuth: true, roles: ['clubAdmin'] },
     children: [
       {
         path: '',
         name: 'admin',
         component: () => import('@/views/admin/AdminConsoleView.vue'),
-        meta: { title: '社团管理后台', requiresAuth: true, roles: ['clubAdmin', 'admin'] }
+        meta: { title: '社团管理后台', requiresAuth: true, roles: ['clubAdmin'] }
       }
     ]
   },
