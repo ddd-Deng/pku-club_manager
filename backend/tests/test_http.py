@@ -26,16 +26,17 @@ class NoDatabaseSessions:
         yield Session()
 
 
-def test_openapi_has_exactly_42_core_operations():
+def test_openapi_has_exactly_46_core_operations():
     schema = create_app().openapi()
     assert (
         sum(
             len(set(value) & {"get", "post", "put", "delete"}) for value in schema["paths"].values()
         )
-        == 42
+        == 46
     )
     assert "/api/clubs/{club_id}/recruitments" in schema["paths"]
     assert "/api/admin/clubs/{club_id}/president" in schema["paths"]
+    assert "/api/venue-reservations" in schema["paths"]
     assert "/api/ai/chat" not in schema["paths"]
     assert "/api/auth/password/forgot" not in schema["paths"]
     body = schema["components"]["schemas"]["ActivityPayload"]

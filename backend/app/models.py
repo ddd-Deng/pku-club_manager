@@ -4,6 +4,7 @@ from sqlalchemy import (
     JSON,
     Boolean,
     CheckConstraint,
+    Date,
     DateTime,
     ForeignKey,
     Index,
@@ -152,6 +153,32 @@ class Notification(Record, Base):
     content: Mapped[str] = mapped_column(Text)
     read: Mapped[bool] = mapped_column(default=False)
     link: Mapped[str] = mapped_column(String(300))
+
+
+class Venue(Record, Base):
+    __tablename__ = "venues"
+    name: Mapped[str] = mapped_column(String(100), unique=True)
+    location: Mapped[str] = mapped_column(String(200))
+    # 每日可预约的时段模板，例如 ["14:00-16:00", "19:00-21:00"]
+    time_slots: Mapped[list] = mapped_column(JSON, default=list)
+
+
+class VenueReservation(Record, Base):
+    __tablename__ = "venue_reservations"
+    __table_args__ = (
+        Index("ix_reservation_venue_date_slot", "venue_id", "reserve_date", "time_slot"),
+        CheckConstraint("status IN ('pending','approved','rejected')"),
+    )
+    venue_id: Mapped[str] = mapped_column(ForeignKey("venues.id"), index=True)
+    club_id: Mapped[str] = mapped_column(ForeignKey("clubs.id"), index=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    reserve_date: Mapped[date] = mapped_column(Date)
+    time_slot: Mapped[str] = mapped_column(String(20))
+    purpose: Mapped[str] = mapped_column(String(200))
+    items: Mapped[list] = mapped_column(JSON, default=list)
+    status: Mapped[str] = mapped_column(String(20), default="pending", index=True)
+    comment: Mapped[str | None] = mapped_column(String(500))
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime)
 
 
 # Explicit MySQL options for all tables, including migration-created tables.

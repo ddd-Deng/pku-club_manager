@@ -8,6 +8,7 @@ Category = Literal["学术科技", "文化艺术", "体育竞技", "志愿服务
 ActivityStatus = Literal["draft", "published", "unpublished", "finished"]
 ActivityType = Literal["讲座", "比赛", "演出", "实践", "志愿活动"]
 ApplicationStatus = Literal["pending", "approved", "rejected"]
+ReservationStatus = Literal["pending", "approved", "rejected"]
 NotificationType = Literal["application", "activity", "venue"]
 Name = Annotated[str, Field(min_length=1, max_length=100)]
 Password = Annotated[str, Field(min_length=6, max_length=128)]
@@ -172,3 +173,18 @@ class ActivityPatch(ActivityFields):
     type: ActivityType | None = None
     cover: Annotated[str, Field(min_length=1, max_length=2048)] | None = None
     club_id: Annotated[str, Field(min_length=1, max_length=36)] | None = None
+
+
+class ReservationPayload(Payload):
+    venue_id: Annotated[str, Field(min_length=1, max_length=36)]
+    date: date
+    time_slot: Annotated[str, Field(min_length=1, max_length=20)]
+    purpose: Annotated[str, Field(min_length=1, max_length=200)]
+    items: Annotated[
+        list[Annotated[str, Field(min_length=1, max_length=50)]], Field(max_length=10)
+    ] = []
+
+
+class ReservationReviewPayload(Payload):
+    action: Literal["approve", "reject"]
+    comment: Annotated[str, Field(max_length=500)] | None = None

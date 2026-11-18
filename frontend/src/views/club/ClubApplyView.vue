@@ -7,7 +7,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { applyJoinClub, getClubDetail } from '@/api/club'
 import StateBlock from '@/components/StateBlock.vue'
 import { useUserStore } from '@/stores/user'
-import type { Club } from '@/types/club'
+import type { ClubDetail } from '@/types/club'
 import { ROLE_LABELS } from '@/utils/constants'
 
 const route = useRoute()
@@ -17,9 +17,21 @@ const clubId = computed(() => String(route.params.id))
 
 const loading = ref(false)
 const errorMessage = ref('')
-const club = ref<Club | null>(null)
+const club = ref<ClubDetail | null>(null)
 const message = ref('')
 const submitting = ref(false)
+
+/** 已是成员或申请审核中时禁止重复提交（后端同样以 1409 兜底，避免刷单式重复请求） */
+const blockedTip = computed(() => {
+  const status = club.value?.myStatus
+  if (status === 'member' || status === 'approved') {
+    return `你已加入${club.value?.name ?? '该社团'}，无需重复提交申请。`
+  }
+  if (status === 'pending') {
+    return '你已提交入社申请，正在等待社长审核，可在个人中心「我的入社申请」查看进度。'
+  }
+  return ''
+})
 
 async function loadClub(): Promise<void> {
   loading.value = true
@@ -42,6 +54,9 @@ onMounted(() => {
 })
 
 async function submitApplication(): Promise<void> {
+  if (blockedTip.value) {
+    return
+  }
   submitting.value = true
   try {
     await applyJoinClub(clubId.value, message.value.trim())
@@ -56,6 +71,10 @@ async function submitApplication(): Promise<void> {
 
 function goBack(): void {
   void router.push(`/clubs/${clubId.value}`)
+}
+
+function goProfile(): void {
+  void router.push('/profile')
 }
 </script>
 
@@ -77,6 +96,14 @@ function goBack(): void {
           :title="`当前登录：${userStore.userInfo?.name ?? ''}（${userStore.role ? ROLE_LABELS[userStore.role] : ''}）`"
           description="请填写申请理由，提交后将通知社长审核，可在个人中心查看进度。"
         />
+        <el-alert
+          v-if="blockedTip"
+          class="club-apply__blocked"
+          type="warning"
+          :closable="false"
+          show-icon
+          :title="blockedTip"
+        />
         <el-form label-position="top" @submit.prevent="submitApplication">
           <el-form-item label="申请理由（200 字以内，选填）">
             <el-input
@@ -85,11 +112,21 @@ function goBack(): void {
               :rows="5"
               maxlength="200"
               show-word-limit
+              :disabled="Boolean(blockedTip)"
               placeholder="例如：热爱摄影，希望加入学习后期与参加外拍活动。"
             />
           </el-form-item>
-          <el-button type="primary" round :loading="submitting" @click="submitApplication">
+          <el-button
+            type="primary"
+            round
+            :loading="submitting"
+            :disabled="Boolean(blockedTip)"
+            @click="submitApplication"
+          >
             提交申请
+          </el-button>
+          <el-button v-if="blockedTip" text type="primary" @click="goProfile">
+            前往个人中心查看
           </el-button>
         </el-form>
       </el-card>
@@ -108,6 +145,10 @@ function goBack(): void {
 }
 
 .club-apply__tip {
+  margin-bottom: 16px;
+}
+
+.club-apply__blocked {
   margin-bottom: 16px;
 }
 </style>

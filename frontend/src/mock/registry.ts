@@ -79,12 +79,20 @@ export function findRoute(
   return null
 }
 
+/** 读取 mock 登录态：未登录返回 null，不抛 401（用于公开接口的个性化字段） */
+export function optionalAuth(ctx: MockContext): MockUser | null {
+  const authorization = ctx.headers.Authorization ?? ctx.headers.authorization ?? ''
+  const token = authorization.replace(/^Bearer\s+/i, '')
+  if (!token) return null
+  const user = mockDb.users.find((item) => item.token === token)
+  return user && user.isActive !== false ? user : null
+}
+
 /** 校验 mock 登录态，返回当前用户 */
 export function requireAuth(ctx: MockContext): MockUser {
   const authorization = ctx.headers.Authorization ?? ctx.headers.authorization ?? ''
-  const token = authorization.replace(/^Bearer\s+/i, '')
-  if (!token) throw new MockError(401, '请先登录')
-  const user = mockDb.users.find((item) => item.token === token)
+  if (!authorization.replace(/^Bearer\s+/i, '')) throw new MockError(401, '请先登录')
+  const user = optionalAuth(ctx)
   if (!user) {
     throw new MockError(401, '登录已失效，请重新登录')
   }

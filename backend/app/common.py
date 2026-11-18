@@ -1,7 +1,9 @@
+import html
 from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
 
+import bleach
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -17,6 +19,22 @@ def utcnow() -> datetime:
 
 def iso(value: datetime | None) -> str | None:
     return value.replace(tzinfo=UTC).isoformat().replace("+00:00", "Z") if value else None
+
+
+def plain_text(value: str | None) -> str:
+    """把夹带 HTML 的文本归一为纯文本。
+
+    社团简介、一句话介绍等字段在前端一律按纯文本渲染，因此存储层不允许保留标签：
+    先剥离全部标签，再还原实体，循环到稳定，避免 ``R&B`` 变成 ``R&amp;B``、
+    也避免 ``&lt;p&gt;`` 被还原成可见的 ``<p>``。
+    """
+    text = value or ""
+    for _ in range(3):
+        stripped = html.unescape(bleach.clean(text, tags=[], attributes={}, strip=True))
+        if stripped == text:
+            break
+        text = stripped
+    return text.strip()
 
 
 class BusinessError(Exception):

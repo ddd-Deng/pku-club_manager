@@ -1,18 +1,36 @@
 import { CLUB_CATEGORIES } from '@/utils/constants'
-import type { ClubApplication, ClubDetail, ReviewApplicationPayload } from '@/types/club'
+import type {
+  ClubApplication,
+  ClubDetail,
+  ClubRelation,
+  ReviewApplicationPayload
+} from '@/types/club'
 
-import { mockDb } from '../db'
+import { mockDb, type MockUser } from '../db'
 import {
   MockError,
   mockRoute,
+  optionalAuth,
   paginate,
   readString,
   requireClubOwner,
   requireRole
 } from '../registry'
 
+/** 我与社团的关系：成员优先，其次取最近一次申请状态（与后端 club_relation 一致） */
+function relationOf(clubId: string, user: MockUser | null): ClubRelation | null {
+  if (!user) return null
+  if (mockDb.members.some((item) => item.clubId === clubId && item.name === user.name)) {
+    return 'member'
+  }
+  const mine = mockDb.applications.filter(
+    (item) => item.clubId === clubId && item.applicantName === user.name
+  )
+  return mine.length ? mine[mine.length - 1].status : 'none'
+}
+
 /** 组装社团详情 */
-function buildClubDetail(clubId: string): ClubDetail {
+function buildClubDetail(clubId: string, user: MockUser | null = null): ClubDetail {
   const club = mockDb.clubs.find((item) => item.id === clubId)
   if (!club) {
     throw new MockError(1404, '社团不存在')
@@ -20,6 +38,7 @@ function buildClubDetail(clubId: string): ClubDetail {
   return {
     ...club,
     introduction: club.introduction ?? club.description,
+    myStatus: relationOf(clubId, user),
     notices: mockDb.notices
       .filter((item) => item.clubId === clubId)
       .map((item) => ({
@@ -53,11 +72,11 @@ mockRoute('GET', '/api/clubs/categories', () => [...CLUB_CATEGORIES])
 
 mockRoute('GET', '/api/clubs/recommended', () => mockDb.clubs.slice(0, 4))
 
-mockRoute('GET', '/api/clubs/:id', (ctx) => buildClubDetail(ctx.pathParams.id))
+mockRoute('GET', '/api/clubs/:id', (ctx) => buildClubDetail(ctx.pathParams.id, optionalAuth(ctx)))
 
 mockRoute('PUT', '/api/clubs/:id', (ctx) => {
   const clubId = ctx.pathParams.id
-  requireClubOwner(ctx, clubId)
+  const user = requireClubOwner(ctx, clubId)
   const club = mockDb.clubs.find((item) => item.id === clubId)
   if (!club) {
     throw new MockError(1404, '社团不存在')
@@ -73,7 +92,7 @@ mockRoute('PUT', '/api/clubs/:id', (ctx) => {
   if (Array.isArray(ctx.data.tags)) {
     club.tags = (ctx.data.tags as unknown[]).filter((tag): tag is string => typeof tag === 'string')
   }
-  return buildClubDetail(clubId)
+  return buildClubDetail(clubId, user)
 })
 
 mockRoute('POST', '/api/clubs/:id/applications', (ctx) => {

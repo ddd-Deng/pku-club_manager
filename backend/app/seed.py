@@ -5,7 +5,7 @@ from datetime import date, timedelta
 from app.common import utcnow
 from app.config import Settings
 from app.db import session_factory
-from app.models import Activity, Club, Member, Notice, Recruitment, StudentIdentity, User
+from app.models import Activity, Club, Member, Notice, Recruitment, StudentIdentity, User, Venue
 from app.security import passwords
 
 DEMO_PASSWORD = "123456"
@@ -20,6 +20,17 @@ CLUBS = [
     ("c-8", "羽毛球社", "体育竞技", "🏸", ["运动", "羽毛球"]),
 ]
 
+# 场地与每日可预约时段模板；预约单的可用状态由待审/已通过预约实时推导
+VENUES = [
+    (
+        "v-1",
+        "大学生活动中心 305",
+        "大学生活动中心三楼",
+        ["14:00-16:00", "16:00-18:00", "19:00-21:00"],
+    ),
+    ("v-2", "体育馆副馆", "东区体育馆", ["08:00-11:00", "14:00-17:00", "19:00-21:00"]),
+]
+
 
 def seed(sessions) -> None:
     with sessions.begin() as db:
@@ -32,7 +43,7 @@ def seed(sessions) -> None:
                         category=category,
                         logo=logo,
                         description=f"欢迎加入{name}，一起发现校园生活的精彩。",
-                        introduction=f"<p>{name}定期组织交流与实践活动。</p>",
+                        introduction=f"{name}定期组织交流与实践活动。",
                         founded_at=date(2015, 9, 1),
                         tags=tags,
                     )
@@ -65,6 +76,9 @@ def seed(sessions) -> None:
         for number, name, email in identities:
             if not db.get(StudentIdentity, number):
                 db.add(StudentIdentity(student_no=number, name=name, email=email))
+        for venue_id, name, location, slots in VENUES:
+            if not db.get(Venue, venue_id):
+                db.add(Venue(id=venue_id, name=name, location=location, time_slots=slots))
         db.flush()
         if not db.get(Member, "m-owner"):
             db.add(Member(id="m-owner", club_id="c-1", user_id="u-club", role="owner"))

@@ -72,6 +72,7 @@ test('admin-only account APIs reject empty tokens and protect administrator acco
     /已被/
   )
   mockDb.users[0].token = ''
+  assert.equal(call('GET', '/api/clubs/c-1').myStatus, null)
   assert.throws(() => call('GET', '/api/user/profile'), /请先登录/)
 })
 
