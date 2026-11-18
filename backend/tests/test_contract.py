@@ -50,7 +50,7 @@ def test_mysql_schema_compiles_with_constraints():
         sql = str(CreateTable(table).compile(dialect=mysql.dialect()))
         assert "ENGINE=InnoDB" in sql
         assert "CHARSET=utf8mb4" in sql
-    assert len(Base.metadata.tables) == 11
+    assert len(Base.metadata.tables) == 13
 
 
 def test_config_rejects_sqlite_and_example_secret():

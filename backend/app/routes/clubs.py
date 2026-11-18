@@ -1,10 +1,9 @@
 from datetime import date
 
-import bleach
 from fastapi import APIRouter, Query
 from sqlalchemy import String, cast, or_, select
 
-from app.common import fail, iso, ok, page_result, utcnow
+from app.common import fail, iso, ok, page_result, plain_text, utcnow
 from app.models import Activity, Application, Club, Member, Notice, Notification, Recruitment, User
 from app.schemas import (
     ApplicationStatus,
@@ -14,8 +13,14 @@ from app.schemas import (
     RecruitmentPayload,
     ReviewPayload,
 )
-from app.security import CurrentUser, Db, StudentUser, managed_club
-from app.serializers import activity_data, application_data, club_data, member_data
+from app.security import CurrentUser, Db, OptionalUser, StudentUser, managed_club
+from app.serializers import (
+    activity_data,
+    application_data,
+    club_data,
+    club_relation,
+    member_data,
+)
 
 router = APIRouter(prefix="/api/clubs", tags=["社团"])
 CATEGORIES = ["学术科技", "文化艺术", "体育竞技", "志愿服务"]
@@ -29,8 +34,10 @@ def find_club(db: Db, club_id: str, lock: bool = False) -> Club:
     return club
 
 
-def detail(db: Db, club: Club) -> dict:
+def detail(db: Db, club: Club, user: User | None = None) -> dict:
     data = club_data(db, club)
+    # 未登录时为 null；登录后返回本人与该社团的关系，供前台展示申请进度
+    data["myStatus"] = club_relation(db, club.id, user) if user else None
     data["notices"] = [
         {
             "id": item.id,
@@ -116,26 +123,22 @@ def recommended(db: Db, limit: int = Query(4, ge=1, le=100)):
 
 
 @router.get("/{club_id}")
-def get_club(club_id: str, db: Db):
-    return ok(detail(db, find_club(db, club_id)))
+def get_club(club_id: str, db: Db, user: OptionalUser):
+    return ok(detail(db, find_club(db, club_id), user))
 
 
 @router.put("/{club_id}")
 def edit_club(club_id: str, payload: ClubPayload, db: Db, user: CurrentUser):
     club = managed_club(db, user, club_id, lock=True)
     values = payload.model_dump(exclude_unset=True)
-    if "introduction" in values:
-        values["introduction"] = bleach.clean(
-            values["introduction"],
-            tags=["p", "br", "strong", "em", "ul", "ol", "li", "h2", "h3", "a"],
-            attributes={"a": ["href", "title"]},
-            protocols=["http", "https", "mailto"],
-            strip=True,
-        )
+    # 简介类字段是纯文本契约：写入即剥离标签，避免前台渲染出 <p> 等标记
+    for field in ("description", "introduction"):
+        if field in values:
+            values[field] = plain_text(values[field])
     for key, value in values.items():
         setattr(club, key, value)
     db.flush()
-    return ok(detail(db, club))
+    return ok(detail(db, club, user))
 
 
 @router.post("/{club_id}/applications")

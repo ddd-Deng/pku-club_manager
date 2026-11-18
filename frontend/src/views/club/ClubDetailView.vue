@@ -39,6 +39,49 @@ function goBack(): void {
 function goApply(): void {
   void router.push(`/clubs/${clubId.value}/apply`)
 }
+
+function goProfile(): void {
+  void router.push('/profile')
+}
+
+/** 我与该社团的关系：驱动状态提示与申请按钮，解决"提交后看不到进度"的问题 */
+const myStatus = computed(() => club.value?.myStatus ?? null)
+const isMember = computed(() => myStatus.value === 'member' || myStatus.value === 'approved')
+const canApply = computed(() => !isMember.value && myStatus.value !== 'pending')
+
+const applyButtonText = computed(() => {
+  if (isMember.value) return '已是成员'
+  if (myStatus.value === 'pending') return '申请审核中'
+  if (myStatus.value === 'rejected') return '重新申请'
+  return '申请加入'
+})
+
+/** 关系提示条：仅登录后且与该社团已有关系时出现 */
+const relationTip = computed(() => {
+  switch (myStatus.value) {
+    case 'member':
+    case 'approved':
+      return {
+        type: 'success' as const,
+        title: `你已加入${club.value?.name ?? '该社团'}`,
+        description: '可在个人中心查看我的入社申请与活动报名记录。'
+      }
+    case 'pending':
+      return {
+        type: 'info' as const,
+        title: '入社申请审核中',
+        description: '社长审核后会通过站内通知告知结果，进度可在个人中心「我的入社申请」查看。'
+      }
+    case 'rejected':
+      return {
+        type: 'warning' as const,
+        title: '上次入社申请未通过',
+        description: '你可以补充申请理由后重新提交。'
+      }
+    default:
+      return null
+  }
+})
 </script>
 
 <template>
@@ -50,6 +93,16 @@ function goApply(): void {
 
     <StateBlock :loading="loading" :error="errorMessage" @retry="loadClub">
       <template v-if="club">
+        <el-alert
+          v-if="relationTip"
+          class="club-detail__relation"
+          :type="relationTip.type"
+          :title="relationTip.title"
+          :description="relationTip.description"
+          :closable="false"
+          show-icon
+        />
+
         <el-card class="club-detail__head" shadow="never">
           <div class="club-detail__head-main">
             <span class="club-detail__logo">{{ club.logo }}</span>
@@ -71,8 +124,14 @@ function goApply(): void {
                 {{ tag }}
               </el-tag>
             </div>
-            <el-button class="club-detail__apply" round type="primary" @click="goApply">
-              申请加入
+            <el-button
+              class="club-detail__apply"
+              round
+              type="primary"
+              :disabled="!canApply"
+              @click="goApply"
+            >
+              {{ applyButtonText }}
             </el-button>
           </div>
           <p class="club-detail__desc">{{ club.description }}</p>
@@ -115,7 +174,18 @@ function goApply(): void {
             <p class="club-detail__apply-tip">
               对{{ club.name }}感兴趣？登录学生账号提交入社申请，等待社长审核。
             </p>
-            <el-button round type="primary" @click="goApply">提交入社申请</el-button>
+            <el-button round type="primary" :disabled="!canApply" @click="goApply">
+              {{ applyButtonText }}
+            </el-button>
+            <el-button
+              v-if="myStatus && myStatus !== 'none'"
+              class="club-detail__profile-link"
+              text
+              type="primary"
+              @click="goProfile"
+            >
+              查看我的申请进度
+            </el-button>
           </el-card>
         </div>
       </template>
@@ -127,6 +197,10 @@ function goApply(): void {
 .club-detail__back {
   margin-bottom: 8px;
   padding-left: 0;
+}
+
+.club-detail__relation {
+  margin-bottom: 16px;
 }
 
 .club-detail__head {
@@ -250,6 +324,11 @@ function goApply(): void {
   font-size: 13px;
   line-height: 20px;
   color: var(--app-color-text-secondary);
+}
+
+.club-detail__profile-link {
+  margin-top: 4px;
+  padding-left: 0;
 }
 
 @media (max-width: 992px) {

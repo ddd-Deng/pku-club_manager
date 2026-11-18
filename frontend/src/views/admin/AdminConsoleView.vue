@@ -7,10 +7,11 @@ import ActivityManager from './components/ActivityManager.vue'
 import ApplicationReviewPanel from './components/ApplicationReviewPanel.vue'
 import ClubProfileForm from './components/ClubProfileForm.vue'
 import MemberManager from './components/MemberManager.vue'
+import VenueReservationPanel from './components/VenueReservationPanel.vue'
 
 /**
  * 管理后台容器（OOD：单一职责）
- * 只负责：标签切换 + 确定"当前管理的社团" + 分发到四个业务子组件。
+ * 只负责：标签切换 + 确定"当前管理的社团" + 分发到五个业务子组件。
  * 各分区的数据加载与业务逻辑都在子组件内完成（见 docs/phase2-design.md §3 类图）。
  *
  * 范围说明（组内决定）：「管理社团」仅面向社长本人所属社团；
@@ -44,8 +45,8 @@ const clubName = ref('')
       <el-tab-pane label="成员权限管理" name="member">
         <MemberManager :club-id="managedClubId" />
       </el-tab-pane>
-      <el-tab-pane label="场地物资预约" name="venue" disabled>
-        <p class="admin-console__placeholder">本阶段范围外，保留占位（见 backlog ID 14）。</p>
+      <el-tab-pane label="场地物资预约" name="venue">
+        <VenueReservationPanel />
       </el-tab-pane>
       <el-tab-pane label="社团知识库上传" name="kb" disabled>
         <p class="admin-console__placeholder">本阶段范围外，保留占位（见 backlog ID 15）。</p>

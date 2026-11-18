@@ -29,6 +29,8 @@ export interface ClubDetail extends Club {
   introduction: string
   notices: ClubNotice[]
   recentActivities: Activity[]
+  /** 我与该社团的关系；未登录为 null，列表接口不返回该字段 */
+  myStatus: ClubRelation | null
 }
 
 /** 社团列表查询参数 */
@@ -38,6 +40,9 @@ export interface ClubQuery extends PageQuery {
 }
 
 export type ApplicationStatus = 'pending' | 'approved' | 'rejected'
+
+/** 当前登录用户与社团的关系（社团详情 myStatus，未登录为 null） */
+export type ClubRelation = 'none' | 'pending' | 'approved' | 'rejected' | 'member'
 
 /** 入社申请 */
 export interface ClubApplication {

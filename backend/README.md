@@ -1,6 +1,6 @@
 # 校园社团管理核心后端
 
-Python 3.11+、FastAPI、MySQL 8。实现 `docs/api.md` 标记的 37 个核心接口；`/docs` 提供可交互接口说明。`backend/` 与前端在同一 Git 仓库中。
+Python 3.11+、FastAPI、MySQL 8。实现 `docs/api.md` 标记的 41 个核心接口（含第 6 章场地与物资预约）；`/docs` 提供可交互接口说明。`backend/` 与前端在同一 Git 仓库中。
 
 第 7 组多人联调采用共享开发数据库时，见 [共享数据库说明](./SHARED_DATABASE.md)。它与每位组员本机的独立测试库分开。
 
